@@ -1,0 +1,11 @@
+{
+    "completions_url": "https://api.openai.com/v1/chat/completions",
+    "api_key": "sk-5",
+    "prompt": "",
+    "geetest": {
+        "enable": true,
+        "captcha_id": "",
+        "captcha_key": "",
+        "api_server": "http://gcaptcha4.geetest.com"
+    }
+}
