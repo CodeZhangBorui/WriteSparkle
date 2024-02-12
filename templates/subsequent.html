@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPT-4-Composition</title>
+    <link rel="stylesheet" href="/static/semantic-ui/semantic.min.css" />
+    <link rel="stylesheet" href="/static/index.css" />
+    <script src="/static/jquery/jquery.min.js"></script>
+    <script src="/static/semantic-ui/semantic.min.js"></script>
+  </head>
+  <body>
+    <div class="ui menu boarderless top">
+      <div class="item">GPT-4-Composition</div>
+      <a href="/" class="item">
+        主页
+      </a>
+      <div class="ui dropdown item active">
+        <div class="text">现在开始</div>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+          <a href="/subsequent" class="item">读后续写优化</a>
+        </div>
+      </div>
+    </div>
+    <div class="ui container">
+      <h4 class="ui block top attached header">
+        <div class="content">读后续写优化</div>
+      </h4>
+      <div class="ui botton attached segment">
+        <div class="ui form">
+            <div class="field">
+                <label>输入文章</label>
+                <textarea rows="10"></textarea>
+            </div>
+            <div class="ui button" id="submit">提交</div>
+        </div>
+      </div>
+      <div id="error_message" class="ui negative message hidden">
+        <div class="header">
+          <i class="close icon"></i>
+          <span id="error_text"></span>
+        </div>
+        <span id="error_detail"></span>
+      </div>
+    </div>
+    <div class="ui vertical footer segment">
+      <div class="ui center aligned container">
+        <p>Made by <a href="https://lampese.com/about/">Lampese</a> and <a href="https://codezhangborui.com/">CodeZhangBorui</a></p>
+        <p>
+          Web Security Powered by
+          <a href="https://www.geetest.com/" target="_blank">Geetest</a>
+        </p>
+      </div>
+    </div>
+    <script>
+      $('.ui.dropdown')
+        .dropdown()
+      ;
+    </script>
+    <!-- Geetest Inital -->
+    <script src="/static/gt4.min.js"></script>
+    <script>
+      var button = $('.ui.button#submit');
+      var captchable = false;
+      initGeetest4({
+        captchaId: '{{ captcha_id }}',
+        product: 'bind',
+      }, function(captcha) {
+        captcha.onReady(function() {
+          captchable = true;
+        }).onSuccess(function() {
+          var result = captcha.getValidate();
+          if(!result) {
+            $("#error_text").text('请完成验证');
+            $("#error_message").removeClass('hidden')
+          }
+          result.captcha_id = '{{ captcha_id }}';
+          $.ajax({
+            url: '/subsequent/new',
+            type: 'post',
+            timeout: 100000,
+            dataType: 'json',
+            data: {
+              'composition': $('textarea').val(),
+              'captcha': result
+            },
+            success: function(data) {
+              console.log(data);
+            },
+          })
+        }).onError(function() {
+          $("#error_text").text('验证失败');
+          $("#error_detail").text('验证码加载失败，请稍后重试。')
+          $("#error_message").removeClass('hidden')
+        })
+      });
+      button.onclick = function() {
+        if(captchable) {
+          captcha.showBox();
+        }
+      }
+    </script>
+  </body>
+</html>

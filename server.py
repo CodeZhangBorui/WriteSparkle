@@ -1,5 +1,8 @@
 import json
 import logging
+import uuid
+import sqlite3
+
 import requests
 
 import geetest
@@ -33,5 +36,29 @@ def index():
 @app.route('/subsequent')
 def subsequent():
     return render_template('subsequent.html', captcha_id=config['geetest']['captcha_id'])
+
+@app.route('/subsequent/new', methods=['POST'])
+def new_subsequent():
+    result = geetest.verify_test(
+        lot_number=request.data['captcha']['lot_number'],
+        captcha_output=request.data['captcha']['captcha_output'],
+        pass_token=request.data['captcha']['pass_token'],
+        gen_time=request.data['captcha']['gen_time']
+    )
+    if result['result'] == 'success':
+        # Generate GPT
+        gptres = ''
+        # Upload to database
+        sid = uuid.uuid4()
+        conn = sqlite3.connect('gpt4com.sqlite')
+        c = conn.cursor()
+        c.execute('INSERT INTO subsequent (sid, gptres) VALUES (?, ?)', (sid, gptres))
+        # Redirect
+        return redirect(f'/subsequent/{sid}')
+    elif result['result'] == 'fail':
+        return result['reason']
+    else:
+        console.print_exception(result['exception'])
+        return result['reason']
 
 app.run(host='127.0.0.1', port=1356, debug=DEBUG_MODE)
