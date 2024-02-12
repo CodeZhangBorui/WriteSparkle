@@ -48,7 +48,7 @@ def new_subsequent():
     if result['result'] == 'success':
         # Generate GPT
         composition = request.data['composition']
-        gptres = ''
+        gptres = 'GPT ie leak!\n\nClick here to continue!'
         # Upload to database
         sid = uuid.uuid4()
         conn = sqlite3.connect('gpt4com.sqlite')
