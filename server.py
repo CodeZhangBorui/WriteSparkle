@@ -47,12 +47,13 @@ def new_subsequent():
     )
     if result['result'] == 'success':
         # Generate GPT
+        composition = request.data['composition']
         gptres = ''
         # Upload to database
         sid = uuid.uuid4()
         conn = sqlite3.connect('gpt4com.sqlite')
         c = conn.cursor()
-        c.execute('INSERT INTO subsequent (sid, gptres) VALUES (?, ?)', (sid, gptres))
+        c.execute('INSERT INTO subsequent (sid, composition, gptres) VALUES (?, ?)', (sid, composition, gptres))
         # Redirect
         return redirect(f'/subsequent/{sid}')
     elif result['result'] == 'fail':
@@ -60,5 +61,17 @@ def new_subsequent():
     else:
         console.print_exception(result['exception'])
         return result['reason']
+
+@app.route('/subsequent/<sid>')
+def get_subsequent(sid):
+    conn = sqlite3.connect('gpt4com.sqlite')
+    c = conn.cursor()
+    c.execute('SELECT * FROM subsequent WHERE sid = ?', (sid,))
+    res = c.fetchone()
+    if res is None:
+        return render_template('subsequent_notfound.html')
+    composition = res[1]
+    gptres = res[2]
+    return render_template('subsequent_result.html', sid=sid, composition=composition, gptres=gptres)
 
 app.run(host='127.0.0.1', port=1356, debug=DEBUG_MODE)
