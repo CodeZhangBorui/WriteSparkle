@@ -37,30 +37,55 @@ def index():
 def subsequent():
     return render_template('subsequent.html', captcha_id=config['geetest']['captcha_id'])
 
-@app.route('/subsequent/new', methods=['POST'])
+@app.route('/api/subsequent/new', methods=['POST'])
 def new_subsequent():
     result = geetest.verify_test(
-        lot_number=request.data['captcha']['lot_number'],
-        captcha_output=request.data['captcha']['captcha_output'],
-        pass_token=request.data['captcha']['pass_token'],
-        gen_time=request.data['captcha']['gen_time']
+        lot_number=request.form['lot_number'],
+        captcha_output=request.form['captcha_output'],
+        pass_token=request.form['pass_token'],
+        gen_time=request.form['gen_time']
     )
     if result['result'] == 'success':
         # Generate GPT
-        composition = request.data['composition']
-        gptres = 'GPT ie leak!\n\nClick here to continue!'
+        composition = request.form['composition']
+        try:
+            gptres = 'We have not implemented this feature yet. Please wait for the next update.'
+        except:
+            return json.dumps({
+                'status': 'error',
+                'message': '请求 ChatGPT 时出错。'
+            })
         # Upload to database
-        sid = uuid.uuid4()
-        conn = sqlite3.connect('gpt4com.sqlite')
-        c = conn.cursor()
-        c.execute('INSERT INTO subsequent (sid, composition, gptres) VALUES (?, ?)', (sid, composition, gptres))
+        try:
+            sid = str(uuid.uuid4())
+            conn = sqlite3.connect('gpt4com.sqlite')
+            c = conn.cursor()
+            c.execute('INSERT INTO subsequent (sid, composition, gptres) VALUES (?, ?, ?)', (sid, composition, gptres))
+            c.close()
+            conn.commit()
+            conn.close()
+            logging.info(f"Add new composition {sid} to database.")
+        except:
+            return json.dumps({
+                'status': 'error',
+                'message': '请求数据库时出错。'
+            })
         # Redirect
-        return redirect(f'/subsequent/{sid}')
+        return json.dumps({
+            'status': 'success',
+            'redirect': f'/subsequent/{sid}'
+        })
     elif result['result'] == 'fail':
-        return result['reason']
+        return json.dumps({
+            'status': 'error',
+            'message': result['reason']
+        })
     else:
         console.print_exception(result['exception'])
-        return result['reason']
+        return json.dumps({
+            'status': 'error',
+            'message': result['reason']
+        })
 
 @app.route('/subsequent/<sid>')
 def get_subsequent(sid):
@@ -68,8 +93,10 @@ def get_subsequent(sid):
     c = conn.cursor()
     c.execute('SELECT * FROM subsequent WHERE sid = ?', (sid,))
     res = c.fetchone()
+    c.close()
+    conn.close()
     if res is None:
-        return render_template('subsequent_notfound.html')
+        return render_template('error.html', message="未找到这篇作文：SID 无效"), 404
     composition = res[1]
     gptres = res[2]
     return render_template('subsequent_result.html', sid=sid, composition=composition, gptres=gptres)

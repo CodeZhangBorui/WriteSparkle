@@ -1,5 +1,6 @@
 import json
 import logging
+import hmac
 import requests
 
 with open('config.json', 'r') as f:
@@ -38,6 +39,7 @@ def verify_test(lot_number='', captcha_output='', pass_token='', gen_time=''):
         assert res.status_code == 200
         msg = res.json()
         if msg['result'] == 'success':
+            logging.info("Geetest captcha passed successfully.")
             return {
                 "result": "success",
                 "reason": msg['reason']
