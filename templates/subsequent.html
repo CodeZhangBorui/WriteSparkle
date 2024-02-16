@@ -38,6 +38,11 @@
             </button>
         </div>
       </div>
+      <div id="slow_message" class="ui message hidden">
+        <div class="header">
+          <i class="info icon"></i>ChatGPT 正在生成内容，这可能需要 1-2 分钟……
+        </div>
+      </div>
       <div id="error_message" class="ui negative message hidden">
         <div class="header">
           <i class="close icon"></i>
@@ -80,6 +85,7 @@
           }
           result.captcha_id = '{{ captcha_id }}';
           $('.ui.button#submit').addClass('loading');
+          $("#slow_message").removeClass('hidden');
           $.ajax({
             url: '/api/subsequent/new',
             type: 'POST',
@@ -106,8 +112,10 @@
                   window.location = String(data.redirect);
                 }, 1000);
               }
+              $("#slow_message").addClass('hidden');
             },
           });
+          
         }).onError(function() {
           $("#error_text").text('验证失败');
           $("#error_detail").text('验证码加载失败，请稍后重试。')

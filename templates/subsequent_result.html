@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/index.css" />
     <script src="/static/jquery/jquery.min.js"></script>
     <script src="/static/semantic-ui/semantic.min.js"></script>
+    <script src="/static/marked.js"></script>
   </head>
   <body>
     <div class="ui menu boarderless top">
@@ -27,9 +28,9 @@
       </h4>
       <div class="ui botton attached segment">
         <h3>你的作文</h3>
-        <p>{{ composition }}</p>
+        <p>{{ composition | safe }}</p>
         <h3>ChatGPT Says:</h3>
-        <p>{{ gptres }}</p>
+        <p id="gptres">{{ gptres | safe }}</p>
       </div>
       <div class="ui message">
         <div class="header">
@@ -54,6 +55,7 @@
     </div>
     <script>
       $(".ui.dropdown").dropdown();
+      $("#gptres").html(marked($("#gptres").html()));
     </script>
   </body>
 </html>
