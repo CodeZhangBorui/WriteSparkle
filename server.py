@@ -39,7 +39,7 @@ client = OpenAI(
 
 @app.route('/')
 def index():
-    return render_template('index.html') 
+    return render_template('index.html')
 
 @app.route('/favicon.ico')
 def favicon():
