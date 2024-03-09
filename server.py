@@ -66,12 +66,14 @@ def new_subsequent():
                 messages=[
                     {'role': 'user', 'content': """You are a high school English language teacher working in China. Below is a student's composition for a reading comprehension exercise (writing two paragraphs as a continuation of a given passage):
 
+== BEGIN COMPOSITION ==
 {{ passage }}
+== END CONPOSITION ==
 
 **Step 1:** Checking for grammar errors in each sentence and presenting them in the format "**Error type**: Incorrect sentence [newline] Explanation", wrong word should be bold. If the student composition does not have any grammar errors, simply state "Syntax Check OK".
 
 **Step 2:** Beautifying the student's composition with strict requirements:
-1. The word count must be strictly limited to 140-180 words.
+1. You write as much as your students write, but no more than 180 words.
 2. Words used must not exceed CEFR B1 level
 3. Keep the first sentence of each paragraph unchanged.
 4. Try to use advanced techniques such as "adjectives as adverbial modifiers," "non-finite verb phrases," "having done to indicate an active action," "participial phrases as complement of sensory verbs," "absolute construction: logical subject," "action chain with vivid imagery," "adverbial clauses, concessive clauses, relative clauses, noun clauses," "inverted sentences," "subjunctive mood," "emphatic sentences," "using empty subjects," "time adverbials," "prepositional phrase as the predicate at the beginning of a sentence."
@@ -81,7 +83,8 @@ def new_subsequent():
 Freely use Markdown.""".replace('{{ passage }}', composition)}
                 ]
             ).choices[0].message.content)
-            gptres += "\n\n此内容由 [GPT-4-Composition](https://gpt4com.codezhangborui.com) 服务生成。\nDriven by [OpenAI](https://openai.com)\nChatGPT can make mistakes. Consider checking important information."
+            generateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            gptres += f"\n\n此内容由 [GPT-4-Composition](https://gpt4com.codezhangborui.com) 服务生成。\n生成时间：{generateTime}\n\nPowered by [OpenAI](https://openai.com/).\nChatGPT can make mistakes. Consider checking important information."
         except:
             console.print_exception()
             return json.dumps({
