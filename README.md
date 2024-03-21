@@ -1,2 +1,3 @@
-# GPT-4-Composition
-GPT-4-Composition is a tool that uses GPT-4 to optimize English composition.
+# WriteSparkle
+
+It's time to sparkle your writing with AI.
