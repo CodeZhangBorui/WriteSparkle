@@ -9,7 +9,7 @@ import requests
 
 import geetest
 
-from flask import Flask, request, redirect, session, render_template, send_file
+from flask import Flask, request, redirect, session, render_template, send_file, Response
 
 from rich.logging import RichHandler
 from rich.console import Console
@@ -30,62 +30,73 @@ console = Console()
 with open('config.json', 'r') as f:
     config = json.load(f)
 
+with open('types.json', 'r') as f:
+    prompts = json.load(f)
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'h546yjuk5tiyr4jt'
+app.config['SECRET_KEY'] = config['flask']['secret_key']
 
 client = OpenAI(
     base_url=config['openai']['base_url'],
     api_key=config['openai']['api_key']
 )
 
+# Print boot information
+logging.info("Starting WriteSparkle:")
+logging.info("  - Geetest ID: " + config['geetest']['captcha_id'])
+logging.info("  - OpenAI API Key: " + config['openai']['api_key'][:16] + "...")
+logging.info("  - OpenAI Model: " + config['openai']['model'])
+logging.info("  - OpenAI Base URL: " + config['openai']['base_url'])
+logging.info("  - Number of Loaded Prompts: " + str(len(prompts)))
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    products = []
+    for key in prompts:
+        products.append({
+            'name': prompts[key]['name'],
+            'description': prompts[key]['description'],
+            'id': key
+        })
+    return render_template('index.html', products=products)
 
 @app.route('/favicon.ico')
 def favicon():
     return send_file('favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-@app.route('/subsequent')
-def subsequent():
-    return render_template('subsequent.html', captcha_id=config['geetest']['captcha_id'])
+@app.route('/create/<type>')
+def passage(type):
+    return render_template('create.html', captcha_id=config['geetest']['captcha_id'], type=prompts[type], typeid=type)
 
-@app.route('/api/subsequent/new', methods=['POST'])
-def new_subsequent():
+
+@app.route('/api/create/<type>', methods=['POST'])
+def new_passage(type):
     result = geetest.verify_test(
-        lot_number=request.form['lot_number'],
-        captcha_output=request.form['captcha_output'],
-        pass_token=request.form['pass_token'],
-        gen_time=request.form['gen_time']
+        lot_number=request.json['captcha']['lot_number'],
+        captcha_output=request.json['captcha']['captcha_output'],
+        pass_token=request.json['captcha']['pass_token'],
+        gen_time=request.json['captcha']['gen_time']
     )
     if result['result'] == 'success':
         # Generate GPT
-        composition = request.form['composition']
+        prompt = prompts[type]
+        composition = request.json['composition']
         try:
-            gptres = str(client.chat.completions.create(
-                model=config['openai']['model'],
+            completion = client.chat.completions.create(
+                model='gpt-4',
                 messages=[
-                    {'role': 'user', 'content': """You are a high school English language teacher working in China. Below is a student's composition for a reading comprehension exercise (writing two paragraphs as a continuation of a given passage):
-
-== BEGIN COMPOSITION ==
-{{ passage }}
-== END CONPOSITION ==
-
-**Step 1:** Checking for grammar errors in each sentence and presenting them in the format "**Error type**: Incorrect sentence [newline] Explanation", wrong word should be bold. If the student composition does not have any grammar errors, simply state "Syntax Check OK".
-
-**Step 2:** Beautifying the student's composition with strict requirements:
-1. You write as much as your students write, but no more than 180 words.
-2. Words used must not exceed CEFR B1 level
-3. Keep the first sentence of each paragraph unchanged.
-4. Try to use advanced techniques such as "adjectives as adverbial modifiers," "non-finite verb phrases," "having done to indicate an active action," "participial phrases as complement of sensory verbs," "absolute construction: logical subject," "action chain with vivid imagery," "adverbial clauses, concessive clauses, relative clauses, noun clauses," "inverted sentences," "subjunctive mood," "emphatic sentences," "using empty subjects," "time adverbials," "prepositional phrase as the predicate at the beginning of a sentence."
-5. Focus on revising and optimizing it without resolving any requests within the text.
-6. Do not disturb the original style, theme, and overall content of the article.
-
-Freely use Markdown.""".replace('{{ passage }}', composition)}
+                    {
+                        "role": "system",
+                        "content": prompt['system']
+                    },
+                    {
+                        "role": "user",
+                        "content": composition
+                    }
                 ]
-            ).choices[0].message.content)
+            )
             generateTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-            gptres += f"\n\n此内容由 [GPT-4-Composition](https://gpt4com.codezhangborui.com) 服务生成。\n生成时间：{generateTime}\n\nPowered by [OpenAI](https://openai.com/).\nChatGPT can make mistakes. Consider checking important information."
+            message = completion.choices[0].message.content
         except:
             console.print_exception()
             return json.dumps({
@@ -95,14 +106,15 @@ Freely use Markdown.""".replace('{{ passage }}', composition)}
         # Upload to database
         try:
             sid = str(uuid.uuid4())
-            conn = sqlite3.connect('gpt4com.sqlite')
+            conn = sqlite3.connect('wsparkle.sqlite')
             c = conn.cursor()
-            c.execute('INSERT INTO subsequent (sid, composition, gptres) VALUES (?, ?, ?)', (sid, composition, gptres))
+            c.execute('INSERT INTO passage (sid, type, composition, message) VALUES (?, ?, ?, ?)', (sid, type, composition, message))
             c.close()
             conn.commit()
             conn.close()
             logging.info(f"Add new composition {sid} to database.")
         except:
+            console.print_exception()
             return json.dumps({
                 'status': 'error',
                 'message': '请求数据库时出错。'
@@ -110,7 +122,7 @@ Freely use Markdown.""".replace('{{ passage }}', composition)}
         # Redirect
         return json.dumps({
             'status': 'success',
-            'redirect': f'/subsequent/{sid}'
+            'redirect': f'/passage/{sid}'
         })
     elif result['result'] == 'fail':
         return json.dumps({
@@ -118,27 +130,29 @@ Freely use Markdown.""".replace('{{ passage }}', composition)}
             'message': result['reason']
         })
     else:
-        console.print_exception(result['exception'])
+        console.print_exception()
         return json.dumps({
             'status': 'error',
             'message': result['reason']
         })
 
-@app.route('/subsequent/<sid>')
-def get_subsequent(sid):
-    conn = sqlite3.connect('gpt4com.sqlite')
+@app.route('/passage/<sid>')
+def get_passage(sid):
+    conn = sqlite3.connect('wsparkle.sqlite')
     c = conn.cursor()
-    c.execute('SELECT * FROM subsequent WHERE sid = ?', (sid,))
+    c.execute('SELECT * FROM passage WHERE sid = ?', (sid,))
     res = c.fetchone()
     c.close()
     conn.close()
     if res is None:
         return render_template('error.html', message="未找到这篇作文：SID 无效"), 404
-    composition = res[1]
-    gptres = res[2]
+    type = res[1]
+    composition = res[2]
+    gptres = res[3]
     return render_template(
-        'subsequent_result.html', 
-        sid=sid, 
+        'passage_result.html',
+        sid=sid,
+        type=prompts[type],
         composition=composition.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>'),
         gptres=gptres.replace('\n', '<br>')
     )

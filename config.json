@@ -1,7 +1,10 @@
 {
-    "completions_url": "https://api.openai.com/v1/chat/completions",
-    "api_key": "sk-5",
-    "prompt": "",
+    "flask": {
+        "secret_key": "ReplaceWithYourSecretKey"
+    },
+    "site": {
+        "announcement": ""
+    },
     "openai": {
         "base_url": "https://api.openai.com/v1",
         "api_key": "sk-",
