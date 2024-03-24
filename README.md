@@ -1,3 +1,3 @@
 # WriteSparkle
 
-It's time to sparkle your writing with AI.
+It's time to make your writing sparkle with AI.

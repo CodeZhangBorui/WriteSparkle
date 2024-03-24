@@ -16,7 +16,7 @@ from rich.console import Console
 
 from openai import OpenAI
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 # Logging setup
 logging.basicConfig(
@@ -62,7 +62,7 @@ def index():
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_file('favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_file('static/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/create/<type>')
 def passage(type):

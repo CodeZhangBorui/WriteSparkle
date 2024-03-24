@@ -6,7 +6,7 @@
     },
     "sentense.polish": {
         "name": "句子润色",
-        "description": "Beta 句子润色",
+        "description": "润色单个句子，让你的句子更加优美。",
         "system": "Polish the user's sentence in English using Chinese high school English vocabulary to no more than 30 words. Use beautiful sentences. Freely use Markdown."
     }
 }
