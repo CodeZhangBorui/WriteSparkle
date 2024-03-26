@@ -11,10 +11,10 @@
         <div class="content">作文：{{ sid }}</div>
     </h4>
     <div class="ui botton attached segment">
-        <p>{{ type.name }}</p>
-        <h3>你的作文</h3>
-        <p>{{ composition | safe }}</p>
-        <h3>修改意见</h3>
+        <p>{{ type.name }}</p><br/>
+        <h3 class="font-bold">你的作文</h3>
+        <p>{{ composition | safe }}</p><br/>
+        <h3 class="font-bold">修改意见</h3>
         <p id="gptres">{{ gptres | safe }}</p>
     </div>
     <div class="ui message">
