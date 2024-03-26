@@ -9,14 +9,18 @@ import { GithubIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import Product from "@/components/product";
 import { Button, Textarea } from "@nextui-org/react";
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, SetStateAction, useState } from "react";
+import { useRouter } from "next/router";
 
 export default function IndexPage() {
+  const router = useRouter();
+  const { typeid } = router.query;
+
   const [textareaContent, setTextareaContent] = useState("");
 
-  const handleTextareaChange = (e) => {
+  const handleTextareaChange = (e: { target: { value: SetStateAction<string>; }; }) => {
     setTextareaContent(e.target.value);
-  }
+  };
 
   const handleButtonClick = () => {
     console.log(textareaContent);
