@@ -1,34 +1,31 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     {% include 'components/head.html' %}
     <script src="/static/marked.js"></script>
-</head>
-<body>
-{% include 'components/menu.html' %}
-<div class="ui container">
-    <h4 class="ui block top attached header">
-        <div class="content">作文：{{ sid }}</div>
-    </h4>
-    <div class="ui botton attached segment">
-        <p>{{ type.name }}</p><br/>
-        <h3 class="font-bold">你的作文</h3>
-        <p>{{ composition | safe }}</p><br/>
-        <h3 class="font-bold">修改意见</h3>
-        <p id="gptres">{{ gptres | safe }}</p>
-    </div>
-    <div class="ui message">
-        <div class="header">
-            <i class="info icon"></i>
-            提示
+  </head>
+  <body>
+    {% include 'components/menu.html' %}
+    <div class="app">
+      <h1 class="font-bold text-xl mb-5">作文：{{ sid }}</h1>
+      <p class="mb-3">类型：{{ type.name }}</p>
+      <div class="attached">
+        <div>
+          <h3 class="font-bold">你的作文</h3>
+          <p>{{ composition | safe }}</p>
         </div>
-        此链接永久有效，您可以保存此链接以便日后查看。
+        <div>
+          <h3 class="font-bold">修改意见</h3>
+          <p id="gptres">{{ gptres | safe }}</p>
+        </div>
+        <div class="bg-green-100">
+          提示：此链接永久有效，您可以保存此链接以便日后查看。
+        </div>
+      </div>
     </div>
-</div>
-{% include 'components/footer.html' %}
-<script>
-    $(".ui.dropdown").dropdown();
-    $("#gptres").html(marked($("#gptres").html()));
-</script>
-</body>
+    {% include 'components/footer.html' %}
+    <script>
+      $("#gptres").html(marked($("#gptres").html()));
+    </script>
+  </body>
 </html>

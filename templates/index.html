@@ -1,47 +1,58 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     {% include 'components/head.html' %}
-</head>
-<body>
-{% include 'components/menu.html' %}
-<div class="ui container">
-    <div class="flex mt-40 mb-40">
+  </head>
+  <body>
+    {% include 'components/menu.html' %}
+    <div class="ui app">
+      <div class="flex mt-40 mb-40">
         <div class="flex-1">
-            <div class="max-w-lg text-4xl font-bold">
-                <h1>It's time to</h1>
-                <h1>make your writing
-                    <span class="font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-purple-500">
-                        sparkle
-                    </span>
-                </h1>
-                <h1>with
-                    <span class="font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-purple-500">
-                    AI
-                    </span>
-                .</h1>
-            </div>
+          <div class="text-5xl font-bold">
+            <h1>It's time to</h1>
+            <h1>
+              make your writing
+              <span
+                class="font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-purple-500"
+              >
+                sparkle
+              </span>
+            </h1>
+            <h1>
+              with
+              <span
+                class="font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-purple-500"
+              >
+                AI
+              </span>
+              .
+            </h1>
+          </div>
         </div>
-        <div class="flex-2 hidden md:block">
-            <img src="/static/animated_writing_hands.png" alt="WriteSparkle" class=" h-40" />
+        <div class="flex-2 hidden lg:block">
+          <img
+            src="/static/fluent_emoji/Writing_Hands.png"
+            alt="WriteSparkle"
+            class="h-40"
+          />
         </div>
+      </div>
+      <h1 class="font-bold text-2xl mb-5">现在就开始。</h1>
+      <div class="attached">
+        {% for product in products %}
+        <div class="p-4">
+          <h4 class="gap-8 text-lg font-bold">{{ product.name }}</h4>
+          <p>{{ product.description }}</p>
+          <button
+            class="bg-blue-500 pt-3 pb-3 pl-5 pr-5 mt-3 text-white font-bold rounded w-20 shadow-lg"
+            onclick="window.location.href='/create/{{ product.id }}'"
+          >
+            开始
+          </button>
+        </div>
+        {% endfor %}
+      </div>
     </div>
-    <h4 class="ui block top attached header">
-        <div class="content">现在开始</div>
-    </h4>
-    {% for product in products %}
-    <div class="ui botton attached segment">
-        <h4 class="gap-8 text-lg font-bold">{{ product.name }}</h4>
-        <p>{{ product.description }}</p>
-        <a href="/create/{{ product.id }}" class="ui button">开始</a>
-    </div>
-    {% endfor %}
-</div>
-{% include 'components/footer.html' %}
-<script>
-    $('.ui.dropdown')
-        .dropdown()
-    ;
-</script>
-</body>
+    {% include 'components/footer.html' %}
+  </body>
 </html>

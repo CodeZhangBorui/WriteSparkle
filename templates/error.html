@@ -5,28 +5,12 @@
   </head>
   <body>
     {% include 'components/menu.html' %}
-    <div class="ui container">
-      <div id="error_message" class="ui negative message">
-        <div class="header">
-          <i class="close icon"></i>
-          错误
-        </div>
-        {{ message }}
+    <div class="app">
+      <div class="bg-red-100 p-5 border shadow rounded">
+        <h1 class="font-bold text-xl mb-2">错误</h1>
+        <p>{{ message }}</p>
       </div>
     </div>
-    <div class="ui vertical footer segment">
-      <div class="ui center aligned container">
-        <p>Made by <a href="https://lampese.com/about/">Lampese</a> and <a href="https://codezhangborui.com/">CodeZhangBorui</a></p>
-        <p>
-          Web Security Powered by
-          <a href="https://www.geetest.com/" target="_blank">Geetest</a>
-        </p>
-      </div>
-    </div>
-    <script>
-      $('.ui.dropdown')
-        .dropdown()
-      ;
-    </script>
+    {% include 'components/footer.html' %}
   </body>
 </html>

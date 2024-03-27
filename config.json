@@ -6,14 +6,14 @@
         "announcement": ""
     },
     "openai": {
-        "base_url": "https://api.openai.com/v1",
-        "api_key": "sk-",
+        "base_url": "https://oneapi.codezhangborui.com/v1",
+        "api_key": "sk-tLgQtVzbmAGZ6pJE51333522Cd724eEa8014B3B2F7954674",
         "model": "gpt-4"
     },
     "geetest": {
         "enable": true,
-        "captcha_id": "",
-        "captcha_key": "",
+        "captcha_id": "ddd98a7386ab229cf161e78f87a02e59",
+        "captcha_key": "9c27a4e736b7fbc28df462e4b9be6a71",
         "api_server": "http://gcaptcha4.geetest.com"
     }
 }

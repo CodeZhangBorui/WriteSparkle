@@ -1,7 +1,33 @@
-i.icon {
-    font-size: 1em;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-a {
-    @apply text-blue-500 !important;
+@layer base {
+  i.icon {
+    font-size: 1em;
+  }
+
+  div.app {
+    margin-left: 15%;
+    margin-right: 15%;
+    max-width: 100% !important;
+  }
+
+  div.attached {
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  div.attached > div {
+    border-width: 1px !important;
+    padding: 1.25rem !important;
+  }
+
+  div.attached > :first-child {
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+
+  div.attached > :last-child {
+    border-radius: 0 0 0.5rem 0.5rem;
+  }
 }
