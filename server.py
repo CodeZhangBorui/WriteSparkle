@@ -64,9 +64,21 @@ def index():
 def favicon():
     return send_file('static/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.errorhandler(404)
+def errorhandler_404(e):
+    return render_template('error.html', code=404, message="404 Not Found"), 404
+
+@app.errorhandler(500)
+def errorhandler_500(e):
+    return render_template('error.html', code=500, message="500 Internal Server Error"), 500
+
 @app.route('/create/<type>')
-def passage(type):
-    return render_template('create.html', captcha_id=config['geetest']['captcha_id'], type=prompts[type], typeid=type)
+def create(type):
+    try:
+        ptype = prompts[type]
+    except KeyError:
+        return render_template('error.html', message=f"无效的作文类型：{type}"), 404
+    return render_template('create.html', captcha_id=config['geetest']['captcha_id'], type=ptype, typeid=type)
 
 
 @app.route('/api/create/<type>', methods=['POST'])
